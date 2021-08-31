@@ -2,16 +2,30 @@
 edition = "2018"
 name = "zero2prod"
 version = "0.1.0"
-[lib]
-path = "src/lib.rs"
 [[bin]]
-path = "src/main.rs"
 name = "zero2prod"
+path = "src/main.rs"
+
 [dependencies]
 actix-http = "3.0.0-beta.8"
 actix-web = "4.0.0-beta.8"
-serde = { version = "1", features = ["derive"]}
+config = "*"
+uuid = { version = "0.8.1", features = ["v4"] }
+chrono = "0.4.15"
+
+[dependencies.serde]
+features = ["derive"]
+version = "1"
+
+[dependencies.sqlx]
+default-features = false
+features = ["runtime-actix-rustls", "macros", "postgres", "uuid", "chrono", "migrate"]
+version = "0.5.7"
+
 [dev-dependencies]
 actix-rt = "2"
 reqwest = "0.11"
 tokio = "1"
+
+[lib]
+path = "src/lib.rs"

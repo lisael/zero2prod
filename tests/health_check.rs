@@ -4,8 +4,11 @@ use uuid::Uuid;
 
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 
+use once_cell::sync::Lazy;
+
 use zero2prod::configuration::{get_configuration, DatabaseSettings};
 use zero2prod::startup::run;
+use zero2prod::telemetry::{get_subscriber, init_subscriber};
 
 pub struct TestApp {
     address: String,
@@ -91,11 +94,25 @@ async fn subscribe_returns_a_400_when_data_is_missing() {
     }
 }
 
+static TRACING: Lazy<()> = Lazy::new(|| {
+    let mut configuration = get_configuration().expect("failed to load configuration");
+    configuration.application_name = "zero2prod_tests".to_owned();
+    if std::env::var("TEST_LOG").is_ok() {
+        let subscriber = get_subscriber(&configuration, std::io::stdout);
+        init_subscriber(subscriber);
+    } else {
+        let subscriber = get_subscriber(&configuration, std::io::sink);
+        init_subscriber(subscriber);
+    };
+});
+
 // Launch our application in the background
 pub async fn spawn_app() -> TestApp {
+    Lazy::force(&TRACING);
+    let mut configuration = get_configuration().expect("failed to load configuration");
+    configuration.application_name = "zero2prod_tests".to_owned();
     let listener = TcpListener::bind("127.0.0.1:0").expect("Can't allocate a random port");
     let port = listener.local_addr().unwrap().port();
-    let mut configuration = get_configuration().expect("Failed to load configuration");
     configuration.database.database_name = Uuid::new_v4().to_string();
     let pg_pool = configure_database(&configuration.database).await;
     let server = run(listener, pg_pool.clone()).expect("Failed to bind address");

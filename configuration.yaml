@@ -1,5 +1,7 @@
 application_port: 8000
 application_host: "127.0.0.1"
+application_log_level: "info"
+application_name: zero2prod
 database:
   host: "localhost"
   port: 5432

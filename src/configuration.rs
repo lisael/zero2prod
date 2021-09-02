@@ -3,6 +3,8 @@ pub struct Settings {
     pub database: DatabaseSettings,
     pub application_port: u16,
     pub application_host: String,
+    pub application_log_level: String,
+    pub application_name: String,
 }
 
 #[derive(serde::Deserialize)]

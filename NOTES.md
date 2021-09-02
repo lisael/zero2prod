@@ -11,7 +11,8 @@ Usage:
     cargo add [options] <dep>...
     cargo add [options] <dep> (--version | --path | --git) <source>
     cargo add -h | --help
-            
+
 zero2prod on  main [!?] is 📦 v0.1.0 via 🦀 v1.56.0-nightly 
 ❯ cargo add actix-web --version 4.0.0-beta.8
+
 ```

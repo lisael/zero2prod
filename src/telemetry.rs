@@ -10,8 +10,8 @@ pub fn get_subscriber(
     sink: impl MakeWriter + Send + Sync + 'static,
 ) -> impl Subscriber + Send + Sync {
     let env_filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new(&configuration.application_log_level));
-    let formatting_layer = BunyanFormattingLayer::new(configuration.application_name.clone(), sink);
+        .unwrap_or_else(|_| EnvFilter::new(&configuration.log.level));
+    let formatting_layer = BunyanFormattingLayer::new(configuration.application.name.clone(), sink);
     Registry::default()
         .with(env_filter)
         .with(JsonStorageLayer)

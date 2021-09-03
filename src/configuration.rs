@@ -1,10 +1,20 @@
 #[derive(serde::Deserialize)]
+pub struct AppicationSettings {
+    pub port: u16,
+    pub host: String,
+    pub name: String,
+}
+
+#[derive(serde::Deserialize)]
+pub struct LoggingSettings {
+    pub level: String,
+}
+
+#[derive(serde::Deserialize)]
 pub struct Settings {
     pub database: DatabaseSettings,
-    pub application_port: u16,
-    pub application_host: String,
-    pub application_log_level: String,
-    pub application_name: String,
+    pub application: AppicationSettings,
+    pub log: LoggingSettings,
 }
 
 #[derive(serde::Deserialize)]

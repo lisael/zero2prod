@@ -94,9 +94,38 @@ async fn subscribe_returns_a_400_when_data_is_missing() {
     }
 }
 
+#[actix_rt::test]
+async fn subscribe_returns_a_400_when_fields_are_present_but_empty() {
+    // Arrange
+    let app = spawn_app().await;
+    let client = reqwest::Client::new();
+    let test_cases = vec![
+        ("name=&email=ursula_le_guin%40gmail.com", "empty name"),
+        ("name=Ursula&email=", "empty email"),
+        ("name=Ursula&email=definitely-not-an-email", "invalid email"),
+    ];
+    for (body, description) in test_cases {
+        // Act
+        let response = client
+            .post(&format!("{}/subscriptions", &app.address))
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .body(body)
+            .send()
+            .await
+            .expect("Failed to execute request.");
+        // Assert
+        assert_eq!(
+            400,
+            response.status().as_u16(),
+            "The API did not return a 400 Bad Request when the payload was {}.",
+            description
+        );
+    }
+}
+
 static TRACING: Lazy<()> = Lazy::new(|| {
     let mut configuration = get_configuration().expect("failed to load configuration");
-    configuration.application_name = "zero2prod_tests".to_owned();
+    configuration.application.name = "zero2prod_tests".to_owned();
     if std::env::var("TEST_LOG").is_ok() {
         let subscriber = get_subscriber(&configuration, std::io::stdout);
         init_subscriber(subscriber);
@@ -110,7 +139,7 @@ static TRACING: Lazy<()> = Lazy::new(|| {
 pub async fn spawn_app() -> TestApp {
     Lazy::force(&TRACING);
     let mut configuration = get_configuration().expect("failed to load configuration");
-    configuration.application_name = "zero2prod_tests".to_owned();
+    configuration.application.name = "zero2prod_tests".to_owned();
     let listener = TcpListener::bind("127.0.0.1:0").expect("Can't allocate a random port");
     let port = listener.local_addr().unwrap().port();
     configuration.database.database_name = Uuid::new_v4().to_string();
